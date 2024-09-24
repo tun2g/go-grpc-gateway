@@ -12,6 +12,8 @@ import (
 	"app/src/config"
 	"app/src/lib/logger"
 	authSrv "app/src/services/auth"
+	"app/src/shared/exceptions"
+	middleware "app/src/shared/middlewares"
 )
 
 var log = logger.NewLogger("Main")
@@ -21,11 +23,15 @@ func run() error {
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
-	mux := runtime.NewServeMux()
+	mux := runtime.NewServeMux(
+		runtime.WithErrorHandler(exceptions.ExceptionHandler),
+	)
 
 	authSrv.RegisterHandlerFromEndPoint(ctx, mux)
 
-	return http.ListenAndServe(fmt.Sprintf(":%v", config.AppConfiguration.AppPort), mux)
+	logMw := middleware.LoggingMiddleware(mux)
+
+	return http.ListenAndServe(fmt.Sprintf(":%v", config.AppConfiguration.AppPort), logMw)
 }
 
 func main() {

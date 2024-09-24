@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package exceptions;
+
+option go_package = "proto/exceptions";
+
+message ErrorDetail {
+  string issue = 1;
+  string issueId = 2;
+  string field = 3;
+  string requestId = 4;
+}
+
+message GRPCErrorResponse {
+  int32 code = 2;
+  ErrorDetail errorDetail = 3;
+}
